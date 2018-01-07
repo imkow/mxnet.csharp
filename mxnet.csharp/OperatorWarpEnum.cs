@@ -8,11 +8,46 @@ using System.Threading.Tasks;
 namespace mxnet.csharp
 {
 /// <summary>
-/// Set the label that is reserved for blank label.If "first", 0-th label is reserved, and label values for tokens in the vocabulary are between ``1`` and ``alphabet_size-1``, and the padding mask is ``-1``. If "last", last label value ``alphabet_size-1`` is reserved for blank label instead, and label values for tokens in the vocabulary are between ``0`` and ``alphabet_size-2``, and the padding mask is ``0``.
+/// The input box encoding type.  "corner" means boxes are encoded as [xmin, ymin, xmax, ymax], "center" means boxes are encodes as [x, y, width, height].
 /// </summary>
-public enum ContribCtclossBlankLabel
-{First,
-Last
+public enum ContribBoxNmsInFormat
+{Center,
+Corner
+};
+/// <summary>
+/// The output box encoding type.  "corner" means boxes are encoded as [xmin, ymin, xmax, ymax], "center" means boxes are encodes as [x, y, width, height].
+/// </summary>
+public enum ContribBoxNmsOutFormat
+{Center,
+Corner
+};
+/// <summary>
+/// The input box encoding type.  "corner" means boxes are encoded as [xmin, ymin, xmax, ymax], "center" means boxes are encodes as [x, y, width, height].
+/// </summary>
+public enum BackwardContribBoxNmsInFormat
+{Center,
+Corner
+};
+/// <summary>
+/// The output box encoding type.  "corner" means boxes are encoded as [xmin, ymin, xmax, ymax], "center" means boxes are encodes as [x, y, width, height].
+/// </summary>
+public enum BackwardContribBoxNmsOutFormat
+{Center,
+Corner
+};
+/// <summary>
+/// The box encoding type.  "corner" means boxes are encoded as [xmin, ymin, xmax, ymax], "center" means boxes are encodes as [x, y, width, height].
+/// </summary>
+public enum ContribBoxIouFormat
+{Center,
+Corner
+};
+/// <summary>
+/// The box encoding type.  "corner" means boxes are encoded as [xmin, ymin, xmax, ymax], "center" means boxes are encodes as [x, y, width, height].
+/// </summary>
+public enum BackwardContribBoxIouFormat
+{Center,
+Corner
 };
 /// <summary>
 /// Output data type.
@@ -25,23 +60,6 @@ public enum ContribDequantizeOutType
 /// </summary>
 public enum ContribQuantizeOutType
 {Uint8
-};
-/// <summary>
-/// Activation function to be applied.
-/// </summary>
-public enum LeakyreluActType
-{Elu,
-Leaky,
-Prelu,
-Rrelu
-};
-/// <summary>
-/// Padding type to use. "constant" pads with `constant_value` "edge" pads using the edge values of the input array "reflect" pads by reflecting values with respect to the edges.
-/// </summary>
-public enum PadMode
-{Constant,
-Edge,
-Reflect
 };
 /// <summary>
 /// Output storage type.
@@ -69,6 +87,22 @@ Mask,
 Value
 };
 /// <summary>
+/// Set the label that is reserved for blank label.If "first", 0-th label is reserved, and label values for tokens in the vocabulary are between ``1`` and ``alphabet_size-1``, and the padding mask is ``-1``. If "last", last label value ``alphabet_size-1`` is reserved for blank label instead, and label values for tokens in the vocabulary are between ``0`` and ``alphabet_size-2``, and the padding mask is ``0``.
+/// </summary>
+public enum ContribCtclossBlankLabel
+{First,
+Last
+};
+/// <summary>
+/// Activation function to be applied.
+/// </summary>
+public enum LeakyreluActType
+{Elu,
+Leaky,
+Prelu,
+Rrelu
+};
+/// <summary>
 /// upsampling method
 /// </summary>
 public enum UpsamplingSampleType
@@ -83,13 +117,12 @@ public enum UpsamplingMultiInputMode
 Sum
 };
 /// <summary>
-/// Activation function to be applied.
+/// Padding type to use. "constant" pads with `constant_value` "edge" pads using the edge values of the input array "reflect" pads by reflecting values with respect to the edges.
 /// </summary>
-public enum ActivationActType
-{Relu,
-Sigmoid,
-Softrelu,
-Tanh
+public enum PadMode
+{Constant,
+Edge,
+Reflect
 };
 /// <summary>
 /// Set layout for input, output and weight. Empty for    default layout: NCW for 1d, NCHW for 2d and NCDHW for 3d.
@@ -98,6 +131,55 @@ public enum ContribDeformableconvolutionLayout
 {NCDHW,
 NCHW,
 NCW
+};
+/// <summary>
+/// Whether to pick convolution algo by running performance test.    Leads to higher startup time but may give faster speed. Options are:    'off': no tuning    'limited_workspace': run test and pick the fastest algorithm that doesn't exceed workspace limit.    'fastest': pick the fastest algorithm and ignore workspace limit.    If set to None (default), behavior is determined by environment    variable MXNET_CUDNN_AUTOTUNE_DEFAULT: 0 for off,    1 for limited workspace (default), 2 for fastest.
+/// </summary>
+public enum ConvolutionV1CudnnTune
+{Fastest,
+LimitedWorkspace,
+Off
+};
+/// <summary>
+/// Set layout for input, output and weight. Empty for    default layout: NCHW for 2d and NCDHW for 3d.
+/// </summary>
+public enum ConvolutionV1Layout
+{NCDHW,
+NCHW,
+NDHWC,
+NHWC
+};
+/// <summary>
+/// The type of transformation. For `affine`, input data should be an affine matrix of size (batch, 6). For `warp`, input data should be an optical flow of size (batch, 2, h, w).
+/// </summary>
+public enum GridgeneratorTransformType
+{Affine,
+Warp
+};
+/// <summary>
+/// Specify the dimension along which to compute L2 norm.
+/// </summary>
+public enum L2normalizationMode
+{Channel,
+Instance,
+Spatial
+};
+/// <summary>
+/// If this is set to null, the output gradient will not be normalized. If this is set to batch, the output gradient will be divided by the batch size. If this is set to valid, the output gradient will be divided by the number of valid input elements.
+/// </summary>
+public enum MakelossNormalization
+{Batch,
+Null,
+Valid
+};
+/// <summary>
+/// Activation function to be applied.
+/// </summary>
+public enum ActivationActType
+{Relu,
+Sigmoid,
+Softrelu,
+Tanh
 };
 /// <summary>
 /// Whether to pick convolution algo by running performance test.
@@ -114,23 +196,6 @@ public enum ConvolutionLayout
 {NCDHW,
 NCHW,
 NCW,
-NDHWC,
-NHWC
-};
-/// <summary>
-/// Whether to pick convolution algo by running performance test.    Leads to higher startup time but may give faster speed. Options are:    'off': no tuning    'limited_workspace': run test and pick the fastest algorithm that doesn't exceed workspace limit.    'fastest': pick the fastest algorithm and ignore workspace limit.    If set to None (default), behavior is determined by environment    variable MXNET_CUDNN_AUTOTUNE_DEFAULT: 0 for off,    1 for limited workspace (default), 2 for fastest.
-/// </summary>
-public enum ConvolutionV1CudnnTune
-{Fastest,
-LimitedWorkspace,
-Off
-};
-/// <summary>
-/// Set layout for input, output and weight. Empty for    default layout: NCHW for 2d and NCDHW for 3d.
-/// </summary>
-public enum ConvolutionV1Layout
-{NCDHW,
-NCHW,
 NDHWC,
 NHWC
 };
@@ -160,29 +225,6 @@ public enum DropoutMode
 Training
 };
 /// <summary>
-/// The type of transformation. For `affine`, input data should be an affine matrix of size (batch, 6). For `warp`, input data should be an optical flow of size (batch, 2, h, w).
-/// </summary>
-public enum GridgeneratorTransformType
-{Affine,
-Warp
-};
-/// <summary>
-/// Specify the dimension along which to compute L2 norm.
-/// </summary>
-public enum L2normalizationMode
-{Channel,
-Instance,
-Spatial
-};
-/// <summary>
-/// If this is set to null, the output gradient will not be normalized. If this is set to batch, the output gradient will be divided by the batch size. If this is set to valid, the output gradient will be divided by the number of valid input elements.
-/// </summary>
-public enum MakelossNormalization
-{Batch,
-Null,
-Valid
-};
-/// <summary>
 /// Pooling type to be applied.
 /// </summary>
 public enum PoolingPoolType
@@ -196,6 +238,13 @@ Sum
 public enum PoolingPoolingConvention
 {Full,
 Valid
+};
+/// <summary>
+/// Specifies how to compute the softmax. If set to ``instance``, it computes softmax for each instance. If set to ``channel``, It computes cross channel softmax for each position of each instance.
+/// </summary>
+public enum SoftmaxactivationMode
+{Channel,
+Instance
 };
 /// <summary>
 /// Pooling type to be applied.
@@ -220,13 +269,6 @@ public enum RNNMode
 Lstm,
 RnnRelu,
 RnnTanh
-};
-/// <summary>
-/// Specifies how to compute the softmax. If set to ``instance``, it computes softmax for each instance. If set to ``channel``, It computes cross channel softmax for each position of each instance.
-/// </summary>
-public enum SoftmaxactivationMode
-{Channel,
-Instance
 };
 /// <summary>
 /// Normalizes the gradient.

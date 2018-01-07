@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,6 +105,8 @@ namespace opwrappergenerator
                     .Trim()
                     .Trim('\'');
 
+                
+
                 if (IsEnum)
                 {
                     if (DefaultString == "None")
@@ -133,10 +136,15 @@ namespace opwrappergenerator
                 {
                     if (DefaultString != "()")
                     {
-                        DefaultStringWithObject = $"if({Name}==null){{ {Name}= new Shape{DefaultString};}}\n";
+                        //DefaultStringWithObject = $"if({Name}==null){{ {Name}= new Shape{DefaultString};}}\n";
                     }
 
                     DefaultString = "null";
+                }
+                else if (DefaultString.StartsWith("["))
+                {
+                    TypeName = "object[]";
+                    DefaultString = "null"; //$"new object[] {{{DefaultString.Trim('[', ']')}}}";
                 }
                 else if (TypeName.StartsWith("Tuple"))
                 {
@@ -152,6 +160,7 @@ namespace opwrappergenerator
 
                     DefaultString = "null";
                 }
+               
 
                 if (TypeName == "float")
                 {
